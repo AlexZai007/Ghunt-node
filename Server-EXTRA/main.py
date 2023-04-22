@@ -1,3 +1,4 @@
+import argparse
 import subprocess
 from flask import Flask, request, jsonify
 
@@ -23,13 +24,16 @@ def run_command():
 
     #пробуем запустить команду
     try:
-
-        output = subprocess.check_output(command_insert.split(), stderr=subprocess.STDOUT)
-        return jsonify({'output': output.decode('utf-8').strip()})
-    
+        result = subprocess.run(command_insert.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=10)
+        return jsonify({'output': result.stdout.decode('utf-8').strip()})
+    except subprocess.TimeoutExpired:
+        return jsonify({'error': 'Command execution timed out'}), 500
     except subprocess.CalledProcessError as e:
-        
         return jsonify({'error': e.output.decode('utf-8').strip()}), 500
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--port", type=int, default=8080, help="Port number")
+    args = parser.parse_args()
+
+    app.run(host='0.0.0.0', port=args.port)
