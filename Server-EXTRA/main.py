@@ -24,7 +24,7 @@ def run_command():
 
     #пробуем запустить команду
     try:
-        result = subprocess.run(command_insert.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=10)
+        result = subprocess.run(command_insert.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=100)
         return jsonify({'output': result.stdout.decode('utf-8').strip()})
     except subprocess.TimeoutExpired:
         return jsonify({'error': 'Command execution timed out'}), 500
